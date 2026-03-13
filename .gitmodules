@@ -1,0 +1,3 @@
+[submodule "vendor/gstack"]
+	path = vendor/gstack
+	url = https://github.com/garrytan/gstack.git

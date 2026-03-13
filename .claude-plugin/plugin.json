@@ -1,0 +1,11 @@
+{
+  "name": "gstack",
+  "version": "0.1.0",
+  "description": "Wrapper plugin for garrytan/gstack — CEO review, eng review, PR review, ship, browse, QA, retro, and cookie import skills",
+  "author": {
+    "name": "ahacad"
+  },
+  "repository": "https://github.com/ahacad/gstack",
+  "license": "MIT",
+  "hooks": "./hooks/hooks.json"
+}
