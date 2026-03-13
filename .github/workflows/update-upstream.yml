@@ -1,0 +1,55 @@
+name: Update upstream gstack
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # every Monday 9am UTC
+  workflow_dispatch: # manual trigger
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Update submodule to latest upstream
+        run: |
+          git submodule update --remote vendor/gstack
+          echo "UPSTREAM_SHA=$(git -C vendor/gstack rev-parse --short HEAD)" >> "$GITHUB_ENV"
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet vendor/gstack; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get upstream commit info
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          cd vendor/gstack
+          echo "COMMIT_MSG=$(git log -1 --pretty=%s)" >> "$GITHUB_ENV"
+          echo "COMMIT_DATE=$(git log -1 --pretty=%ci)" >> "$GITHUB_ENV"
+
+      - name: Create pull request
+        if: steps.check.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: bump upstream gstack to ${{ env.UPSTREAM_SHA }}"
+          branch: auto/update-upstream
+          delete-branch: true
+          title: "chore: bump upstream gstack to ${{ env.UPSTREAM_SHA }}"
+          body: |
+            Automated submodule update from [garrytan/gstack](https://github.com/garrytan/gstack).
+
+            **Latest upstream commit:** `${{ env.UPSTREAM_SHA }}`
+            **Message:** ${{ env.COMMIT_MSG }}
+            **Date:** ${{ env.COMMIT_DATE }}
+          labels: automated
