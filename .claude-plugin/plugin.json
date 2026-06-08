@@ -6,6 +6,5 @@
     "name": "ahacad"
   },
   "repository": "https://github.com/ahacad/gstack",
-  "license": "MIT",
-  "hooks": "./hooks/hooks.json"
+  "license": "MIT"
 }
